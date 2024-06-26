@@ -1,0 +1,125 @@
+openapi: 3.0.3
+
+info:
+  title: JSConfBp - Example API
+  description: |
+    OpenAPI specification for the JSConfBp Example API
+  version: 0.0.3
+  contact:
+    name: Attila Olah
+    email: attila.olah@supercharge.io
+  license:
+    name: Apache 2.0
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+
+tags:
+  - name: examples
+    description: Operations about examples
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+
+paths:
+  /examples/{exampleId}:
+    get:
+      tags:
+        - examples
+      operationId: getExampleById
+      description: Get an example by ID
+      summary: Get an example by ID
+      parameters:
+        - name: exampleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully retrieved example
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExampleDto"
+        "404":
+          description: Example not found
+    put:
+      tags:
+        - examples
+      operationId: updateExampleById
+      description: Update an example by ID
+      summary: Update an example by ID
+      parameters:
+        - name: exampleId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExampleDto"
+      responses:
+        "200":
+          description: Successfully updated example
+        "404":
+          description: Example not found
+    delete:
+      tags:
+        - examples
+      operationId: deleteExampleById
+      description: Delete an example by ID
+      summary: Delete an example by ID
+      parameters:
+        - name: exampleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully deleted example
+        "404":
+          description: Example not found
+  /examples:
+    post:
+      tags:
+        - examples
+      operationId: createExample
+      description: Create a new example
+      summary: Create a new example
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateExampleDto"
+      responses:
+        "200":
+          description: Successfully created example
+
+components:
+  schemas:
+    ExampleDto:
+      type: object
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        message:
+          type: string
+      required:
+        - id
+        - createdAt
+        - message
+    CreateExampleDto:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message

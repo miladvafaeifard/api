@@ -1,0 +1,67 @@
+include:
+  - remote: https://gitlab.com/team-supercharge/jarvis/jarvis/raw/v10.4.0/jarvis.yml
+
+stages:
+  - check
+  - release
+  - publish
+
+default:
+  tags: [arm64]
+
+.targets:
+  - client-angular
+  - client-react
+  - server-nestjs
+
+.oasg:
+  image: registry.gitlab.com/team-supercharge/oasg:13.1.3
+
+# check
+swaggerlint:
+  extends:
+    - .jarvis-pod-size-s
+    - .jarvis-on-merge-request
+    - .oasg
+  stage: check
+  script:
+    - oasg lint
+
+build-check:
+  extends:
+    - .jarvis-pod-size-m
+    - .jarvis-on-merge-request
+    - .oasg
+  stage: check
+  script:
+    - oasg generate $TARGET
+  parallel:
+    matrix:
+      - TARGET: !reference [.targets]
+
+# release
+main-release:
+  extends: .jarvis-main-release
+  stage: release
+
+pre-release:
+  extends: .jarvis-pre-release
+  stage: release
+
+# build
+generate-and-publish:
+  extends:
+    - .jarvis-pod-size-m
+    - .jarvis-on-release
+    - .jarvis-git-push
+    - .oasg
+  stage: publish
+  script:
+    - ./npm-login.sh $CI_JOB_TOKEN
+    - cp .npmrc ~/.npmrc # copy to global
+    - oasg generate $TARGET
+    - oasg publish $TARGET
+      $(if [[ ! -z $JARVIS_PRE_RELEASE ]]; then echo "--preRelease"; fi)
+  parallel:
+    matrix:
+      - TARGET: !reference [.targets]

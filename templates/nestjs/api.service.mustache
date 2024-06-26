@@ -1,0 +1,60 @@
+/* tslint:disable:no-unused-variable member-ordering */
+
+{{>licenseInfo}}
+
+import { Get, Post, Put, Delete, Patch, Options, Head, ParseFilePipe } from '@nestjs/common';
+import { Query, Param, Headers, Body } from '@nestjs/common';
+import { HttpCode, Request, Response } from '@nestjs/common';
+import { UseInterceptors, UploadedFile, StreamableFile } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+
+import { OptionalParseIntPipe, OptionalParseFloatPipe, OptionalParseBoolPipe, OptionalParseEnumPipe, RequiredPipe } from '../pipes';
+import { ApiParseArrayPipe, ApiValidationPipe } from '../pipes';
+
+{{#imports}}
+// @ts-ignore
+import { {{ classname }} } from '{{ filename }}';
+{{/imports}}
+
+{{#operations}}
+{{#operation}}{{#allParams.0}}export interface {{operationIdCamelCase}}Context { params: { {{#allParams}}{{^isBodyParam}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}; {{/isBodyParam}}{{/allParams}} }{{#bodyParam}}, body: {{{dataType}}}{{/bodyParam}} };{{/allParams.0}}
+{{/operation}}
+
+{{#description}}
+/**
+ * {{&description}}
+ */
+{{/description}}
+export abstract class {{classname}} {
+
+  {{#operation}}
+// ||||||||||
+  static readonly {{nickname}}Url = '{{path}}';
+  /**
+  {{#summary}}
+    * {{.}}
+  {{/summary}}
+  {{#notes}}
+    * {{.}}
+  {{/notes}}
+
+  {{#allParams}}
+    * @param {{paramName}} {{description}}
+  {{/allParams}}
+  {{#isDeprecated}}
+    * @deprecated
+  {{/isDeprecated}}
+    */
+  //// @{{httpMethod}}('{{path}}'){{#isMultipart}}
+  @UseInterceptors(FileInterceptor({{#formParams}}{{#isFile}}'{{paramName}}'{{/isFile}}{{/formParams}})){{/isMultipart}}
+  @HttpCode({{#responses.0}}{{code}}{{/responses.0}})
+  private _{{nickname}}(@Request() req{{#vendorExtensions.x-with-response}}, @Response({ passthrough: true }) res {{/vendorExtensions.x-with-response}}{{#bodyParam}}, @Body(new ApiValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) requestBody{{^required}}?{{/required}}: {{{dataType}}}{{/bodyParam}}{{#allParams}}{{^isBodyParam}}, {{#isQueryParam}}@Query({{/isQueryParam}}{{#isPathParam}}@Param({{/isPathParam}}{{#isHeaderParam}}@Headers({{/isHeaderParam}}{{#isFormParam}}{{^isFile}}@Body({{/isFile}}{{#isFile}}@UploadedFile({{/isFile}}{{/isFormParam}}{{^isFile}}'{{paramName}}'{{/isFile}}{{#required}}{{^isFile}}, RequiredPipe{{/isFile}}{{#isFile}}new ParseFilePipe({fileIsRequired: true}){{/isFile}}{{/required}}{{#isArray}}, new ApiParseArrayPipe({ optional: true{{#items}}{{#isNumeric}}, items: Number{{/isNumeric}}{{#isBoolean}}, items: Boolean{{/isBoolean}}{{/items}} }){{/isArray}}{{#isNumber}}, OptionalParseFloatPipe{{/isNumber}}{{#isFloat}}, OptionalParseFloatPipe{{/isFloat}}{{#isDouble}}, OptionalParseFloatPipe{{/isDouble}}{{#isInteger}}, OptionalParseIntPipe{{/isInteger}}{{#isLong}}, OptionalParseIntPipe{{/isLong}}{{#isBoolean}}, OptionalParseBoolPipe{{/isBoolean}}{{#allowableValues}}{{^enumVars.empty}}, new OptionalParseEnumPipe({{{dataType}}}){{/enumVars.empty}}{{/allowableValues}}) {{paramName}}{{^required}}?{{/required}}: {{{dataType}}}{{/isBodyParam}}{{/allParams}}): Promise<{{#returnType}}{{#isResponseFile}}StreamableFile{{/isResponseFile}}{{^isResponseFile}}{{{returnType}}}{{/isResponseFile}}{{/returnType}}{{^returnType}}void{{/returnType}}> {
+    return this.{{nickname}}({{#allParams.0}}{ params: { {{#allParams}}{{^isBodyParam}}{{paramName}}, {{/isBodyParam}}{{/allParams}} }{{#bodyParam}}, body: requestBody{{/bodyParam}} }, {{/allParams.0}}req{{#vendorExtensions.x-with-response}}, res{{/vendorExtensions.x-with-response}});
+  }
+
+  abstract {{nickname}}({{#allParams.0}}context: {{operationIdCamelCase}}Context, {{/allParams.0}}req {{#vendorExtensions.x-with-response}}, res{{/vendorExtensions.x-with-response}}): Promise<{{#returnType}}{{#isResponseFile}}StreamableFile{{/isResponseFile}}{{^isResponseFile}}{{{returnType}}}{{/isResponseFile}}{{/returnType}}{{^returnType}}void{{/returnType}}>;
+
+  {{/operation}}
+// ||||||||||
+}
+{{/operations}}

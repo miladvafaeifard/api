@@ -1,0 +1,33 @@
+{
+  "sources": [
+    {
+      "id": "jsconfbp",
+      "type": "simple",
+      "input": "api/openapi.yaml"
+    }
+  ],
+  "targets": [
+    {
+      "id": "client-angular",
+      "type": "angular",
+      "source": "jsconfbp",
+      "packageName": "@jsconfbp/api-client-ng",
+      "repository": "https://gitlab.com/api/v4/projects/58059164/packages/npm/"
+    },
+    {
+      "id": "client-react",
+      "type": "react",
+      "source": "jsconfbp",
+      "packageName": "@jsconfbp/api-client-react",
+      "repository": "https://gitlab.com/api/v4/projects/58059164/packages/npm/"
+    },
+    {
+      "id": "server-nestjs",
+      "type": "nestjs",
+      "source": "jsconfbp",
+      "packageName": "@jsconfbp/api",
+      "templateDir": "templates/nestjs",
+      "repository": "https://gitlab.com/api/v4/projects/58059164/packages/npm/"
+    }
+  ]
+}

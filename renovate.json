@@ -1,0 +1,7 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+      "gitlab>team-supercharge/jarvis/renovate-presets//base#v1.0.0",
+      "gitlab>team-supercharge/jarvis/renovate-presets//api-generator#v1.0.0"
+    ]
+  }
